@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <base target="_top">
+  <?!= include('tailwind_config'); ?>
+</head>
+<body class="bg-cream text-gray-800 font-sans min-h-screen flex flex-col">
+  <div class="flex-grow container mx-auto p-4 max-w-lg">
+    <div class="bg-white rounded-lg shadow-lg p-6">
+      <h1 class="text-2xl font-bold text-teal mb-4 text-center">📝 บันทึกอาการสะเก็ดเงิน</h1>
+
+      <div class="flex justify-center mb-6 border-b border-sky">
+        <a href="<?= ScriptApp.getService().getUrl() ?>?page=index" class="py-2 px-4 text-center text-lg font-medium border-b-2 border-teal text-teal">
+          บันทึกข้อมูล
+        </a>
+        <a href="<?= ScriptApp.getService().getUrl() ?>?page=report" class="py-2 px-4 text-center text-lg font-medium border-b-2 border-transparent text-gray-500 hover:text-teal">
+          รายงาน/กราฟ
+        </a>
+      </div>
+
+      <form id="psoriasisForm" class="space-y-6">
+        <div>
+          <label for="sleepTime" class="block text-sm font-medium text-gray-700">เวลาเข้านอน</label>
+          <input type="datetime-local" id="sleepTime" name="sleepTime" required class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-teal focus:ring-teal">
+        </div>
+
+        <div>
+          <label for="wakeTime" class="block text-sm font-medium text-gray-700">เวลาตื่นนอน</label>
+          <input type="datetime-local" id="wakeTime" name="wakeTime" required class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-teal focus:ring-teal">
+        </div>
+
+        <div>
+          <label class="block text-sm font-medium text-gray-700">ระดับความเครียด (1 น้อย - 5 มาก)</label>
+          <div class="flex justify-between mt-2">
+            <? for (let i = 1; i <= 5; i++) { ?>
+              <div class="text-center">
+                <input type="radio" id="stress<?= i ?>" name="stressLevel" value="<?= i ?>" required class="peer hidden">
+                <label for="stress<?= i ?>" class="block w-12 h-12 rounded-full border-2 border-sky cursor-pointer flex items-center justify-center text-lg font-bold peer-checked:bg-peach peer-checked:text-white peer-checked:border-peach"><?= i ?></label>
+              </div>
+            <? } ?>
+          </div>
+        </div>
+
+        <div>
+          <label class="block text-sm font-medium text-gray-700">ระดับอาการ (1 น้อย - 5 มาก)</label>
+          <div class="flex justify-between mt-2">
+            <? for (let i = 1; i <= 5; i++) { ?>
+              <div class="text-center">
+                <input type="radio" id="symptom<?= i ?>" name="symptomLevel" value="<?= i ?>" required class="peer hidden">
+                <label for="symptom<?= i ?>" class="block w-12 h-12 rounded-full border-2 border-sky cursor-pointer flex items-center justify-center text-lg font-bold peer-checked:bg-peach peer-checked:text-white peer-checked:border-peach"><?= i ?></label>
+              </div>
+            <? } ?>
+          </div>
+        </div>
+        <div>
+          <label for="foodBreakfast" class="block text-sm font-medium text-gray-700">อาหารเช้า</label>
+          <input type="text" id="foodBreakfast" name="foodBreakfast" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-teal focus:ring-teal">
+        </div>
+        <div>
+          <label for="foodLunch" class="block text-sm font-medium text-gray-700">อาหารกลางวัน</label>
+          <input type="text" id="foodLunch" name="foodLunch" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-teal focus:ring-teal">
+        </div>
+        <div>
+          <label for="foodDinner" class="block text-sm font-medium text-gray-700">อาหารเย็น</label>
+          <input type="text" id="foodDinner" name="foodDinner" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-teal focus:ring-teal">
+        </div>
+
+        <div>
+          <label for="location" class="block text-sm font-medium text-gray-700">ตำแหน่งที่มีอาการอักเสบ</label>
+          <input type="text" id="location" name="location" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-teal focus:ring-teal">
+        </div>
+         <div>
+          <label for="notes" class="block text-sm font-medium text-gray-700">หมายเหตุเพิ่มเติม</label>
+          <textarea id="notes" name="notes" rows="2" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-teal focus:ring-teal"></textarea>
+        </div>
+
+        <div>
+          <label class="block text-sm font-medium text-gray-700">อัปโหลดรูปภาพอาการ (สูงสุด 3 รูป)</label>
+          <input type="file" id="imageUpload" name="imageUpload" accept="image/*" multiple class="mt-1 block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-sky file:text-teal hover:file:bg-teal hover:file:text-white">
+          <div id="imagePreview" class="mt-2 grid grid-cols-3 gap-2"></div>
+          <p id="imageError" class="text-red-500 text-xs mt-1 hidden">สามารถอัปโหลดได้สูงสุด 3 รูปเท่านั้น</p>
+        </div>
+
+        <button type="submit" id="submitButton" class="w-full bg-teal hover:bg-opacity-90 text-white font-bold py-3 px-4 rounded-lg focus:outline-none focus:shadow-outline transition duration-150 ease-in-out">
+          บันทึกข้อมูล
+        </button>
+      </form>
+       <div id="status" class="mt-4 text-center"></div>
+    </div>
+  </div>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const now = new Date();
+        now.setMinutes(now.getMinutes() - now.getTimezoneOffset());
+        const isoString = now.toISOString().slice(0, 16);
+
+        document.getElementById('sleepTime').value = isoString;
+        document.getElementById('wakeTime').value = isoString;
+
+        const imageUpload = document.getElementById('imageUpload');
+        const imagePreview = document.getElementById('imagePreview');
+        const imageError = document.getElementById('imageError');
+
+        imageUpload.addEventListener('change', function() {
+            imagePreview.innerHTML = '';
+            imageError.classList.add('hidden');
+            if (this.files.length > 3) {
+                imageError.classList.remove('hidden');
+                this.value = '';
+                return;
+            }
+            for (const file of this.files) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    const img = document.createElement('img');
+                    img.src = e.target.result;
+                    img.className = 'w-full h-20 object-cover rounded-md shadow-sm';
+                    imagePreview.appendChild(img);
+                };
+                reader.readAsDataURL(file);
+            }
+        });
+    });
+
+    document.getElementById("psoriasisForm").addEventListener("submit", function(e) {
+      e.preventDefault();
+      const submitButton = document.getElementById("submitButton");
+      const statusDiv = document.getElementById("status");
+
+      submitButton.disabled = true;
+      submitButton.textContent = 'กำลังบันทึก...';
+      statusDiv.textContent = '';
+
+      const formData = {
+        sleepTime: this.sleepTime.value,
+        wakeTime: this.wakeTime.value,
+        stressLevel: this.stressLevel.value,
+        symptomLevel: this.symptomLevel.value,
+        foodBreakfast: this.foodBreakfast.value,
+        foodLunch: this.foodLunch.value,
+        foodDinner: this.foodDinner.value,
+        location: this.location.value,
+        notes: this.notes.value,
+      };
+
+      const files = document.getElementById('imageUpload').files;
+      const fileReaders = [];
+      const base64Files = [];
+
+      if (files.length > 0) {
+        for (let i = 0; i < files.length; i++) {
+          const reader = new FileReader();
+          fileReaders.push(new Promise(resolve => {
+            reader.onload = function(event) {
+              const base64 = event.target.result.split(',')[1];
+              base64Files.push(base64);
+              resolve();
+            };
+            reader.readAsDataURL(files[i]);
+          }));
+        }
+      }
+
+      Promise.all(fileReaders).then(() => {
+          google.script.run
+            .withSuccessHandler(response => {
+              statusDiv.textContent = response.message;
+              statusDiv.className = response.success ? 'mt-4 text-center text-green-600' : 'mt-4 text-center text-red-600';
+              if(response.success) {
+                  document.getElementById("psoriasisForm").reset();
+                  document.getElementById("imagePreview").innerHTML = '';
+              }
+               submitButton.disabled = false;
+               submitButton.textContent = 'บันทึกข้อมูล';
+            })
+            .withFailureHandler(error => {
+               statusDiv.textContent = "ผิดพลาด: " + error.message;
+               statusDiv.className = 'mt-4 text-center text-red-600';
+               submitButton.disabled = false;
+               submitButton.textContent = 'บันทึกข้อมูล';
+            })
+            .saveData(formData, base64Files);
+      });
+    });
+  </script>
+</body>
+</html>
