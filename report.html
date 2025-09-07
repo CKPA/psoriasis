@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <base target="_top">
+  <?!= include('tailwind_config'); ?>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns@latest/dist/chartjs-adapter-date-fns.bundle.min.js"></script>
+</head>
+<body class="bg-cream text-gray-800 font-sans min-h-screen flex flex-col">
+  <div class="flex-grow container mx-auto p-4 max-w-lg">
+    <div class="bg-white rounded-lg shadow-lg p-6">
+      <h1 class="text-2xl font-bold text-teal mb-4 text-center">📊 รายงาน/กราฟสรุป</h1>
+
+      <div class="flex justify-center mb-6 border-b border-sky">
+        <a href="<?= ScriptApp.getService().getUrl() ?>?page=index" class="py-2 px-4 text-center text-lg font-medium border-b-2 border-transparent text-gray-500 hover:text-teal">
+          บันทึกข้อมูล
+        </a>
+        <a href="<?= ScriptApp.getService().getUrl() ?>?page=report" class="py-2 px-4 text-center text-lg font-medium border-b-2 border-teal text-teal">
+          รายงาน/กราฟ
+        </a>
+      </div>
+
+      <div id="loading" class="text-center text-gray-600 py-8">
+        กำลังโหลดข้อมูลกราฟ...
+      </div>
+      <div id="chartContainer" class="hidden">
+        <canvas id="myChart"></canvas>
+        <div id="noDataMessage" class="hidden text-center text-gray-600 py-4">
+          ยังไม่มีข้อมูลเพียงพอสำหรับสร้างกราฟ
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      google.script.run
+        .withSuccessHandler(function(data) {
+          document.getElementById('loading').classList.add('hidden');
+          document.getElementById('chartContainer').classList.remove('hidden');
+
+          if (data.error) {
+              document.getElementById('noDataMessage').textContent = data.error;
+              document.getElementById('noDataMessage').classList.remove('hidden');
+              return;
+          }
+
+          if (data.length === 0) {
+              document.getElementById('noDataMessage').classList.remove('hidden');
+              return;
+          }
+
+          data.sort((a, b) => new Date(a.date) - new Date(b.date));
+
+          const labels = data.map(row => new Date(row.date));
+          const stressData = data.map(row => row.stress);
+          const symptomData = data.map(row => row.symptom);
+
+          const ctx = document.getElementById('myChart').getContext('2d');
+          new Chart(ctx, {
+            type: 'line',
+            data: {
+              labels: labels,
+              datasets: [{
+                label: 'ระดับความเครียด',
+                data: stressData,
+                borderColor: '#BFE7FF', // sky
+                backgroundColor: '#BFE7FF',
+                tension: 0.1,
+                fill: false
+              }, {
+                label: 'ระดับอาการ',
+                data: symptomData,
+                borderColor: '#F8A26F', // peach
+                backgroundColor: '#F8A26F',
+                tension: 0.1,
+                fill: false
+              }]
+            },
+            options: {
+              responsive: true,
+              maintainAspectRatio: true,
+              scales: {
+                x: {
+                  type: 'time',
+                  time: {
+                    unit: 'day',
+                    tooltipFormat: 'dd MMM yyyy',
+                    displayFormats: {
+                      day: 'dd MMM'
+                    }
+                  },
+                  title: {
+                    display: true,
+                    text: 'วันที่'
+                  }
+                },
+                y: {
+                  beginAtZero: true,
+                  max: 5,
+                  ticks: {
+                    stepSize: 1
+                  },
+                  title: {
+                    display: true,
+                    text: 'ระดับ (1-5)'
+                  }
+                }
+              }
+            }
+          });
+        })
+        .withFailureHandler(function(error) {
+          document.getElementById('loading').classList.add('hidden');
+          document.getElementById('chartContainer').classList.remove('hidden');
+          document.getElementById('noDataMessage').textContent = 'เกิดข้อผิดพลาดในการโหลดข้อมูล: ' + error.message;
+          document.getElementById('noDataMessage').classList.remove('hidden');
+        })
+        .getChartData();
+    });
+  </script>
+</body>
+</html>
