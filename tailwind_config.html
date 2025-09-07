@@ -1,0 +1,22 @@
+<script src="https://cdn.tailwindcss.com"></script>
+<script>
+  tailwind.config = {
+    theme: {
+      extend: {
+        colors: {
+          teal: '#0FA4AF',
+          sky: '#BFE7FF',
+          cream: '#FCFAF7',
+          sand: '#EEDD9D',
+          peach: '#F8A26F',
+        }
+      }
+    }
+  }
+</script>
+<style>
+  /* Optional: Adjust for better mobile experience if needed */
+  input[type="datetime-local"]::-webkit-calendar-picker-indicator {
+    filter: invert(1); /* Adjust color if needed for dark mode */
+  }
+</style>
